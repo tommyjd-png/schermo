@@ -9,7 +9,8 @@
 }
 html, body {
   position: fixed; inset: 0; overflow: hidden;
-  background: #000; overscroll-behavior: none; touch-action: none;
+  background: #000 url(img/wallpaper.jpg) center center / cover no-repeat;
+  overscroll-behavior: none; touch-action: none;
 }
 #stage {
   position: absolute; left: 0; top: 0; width: 393px; height: 852px;

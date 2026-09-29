@@ -15,6 +15,12 @@ window.CONFIG = {
   // Quanti tentativi falliscono prima dello sblocco (2 = si sblocca al terzo).
   tentativiFalliti: 2,
 
+  // PEEK: a quale immissione copiare il numero pensato nella clipboard del TUO telefono.
+  //   2 = alla seconda immissione (default). 0 = disattivato.
+  // Resta tutto sul telefono: la pagina non ha rete. Serve per un numero pensato a caso,
+  // sul tuo dispositivo, che non sblocca nulla.
+  copiaClipboard: 2,
+
   // Durata della pressione prolungata sull'orologio, in millisecondi.
   pressioneLunga: 650,
 

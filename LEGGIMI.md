@@ -13,6 +13,10 @@ La pagina ha una regola di sicurezza che blocca qualsiasi connessione di rete. N
 - **4 o 6 cifre**: sulla schermata di blocco tocca l'icona della fotocamera: alterna 4 ↔ 6 cifre.
   In alternativa tieni premuto l'orologio per mezzo secondo: metà sinistra = 4, metà destra = 6.
   Conferma discreta: la lineetta in alto a destra lampeggia 1 volta (4) o 2 volte (6).
+- **Numero pensato nella clipboard (peek)**: alla seconda immissione il numero digitato
+  viene copiato nella clipboard del telefono, così puoi leggerlo con un tocco. Resta sul
+  dispositivo (la pagina non ha rete). Cambia l'immissione o disattivalo in `config.js` alla
+  voce `copiaClipboard` (2 = seconda immissione, 0 = spento).
 - **Ricominciare dopo lo sblocco**: nella Home tieni premuto "Cerca" per 1 secondo.
   L'app riparte comunque dalla schermata di blocco ogni volta che la chiudi e la riapri.
 

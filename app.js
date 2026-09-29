@@ -23,27 +23,25 @@
   const TRAVEL = 300;            // punti di trascinamento per aprire del tutto
 
   /* ---------------- adattamento allo schermo ---------------- */
-  let scale = 1, offX = 0, offY = 0;
-  function viewportSize() {
-    const vv = window.visualViewport;
-    const vw = Math.round((vv && vv.width) || window.innerWidth);
-    const vh = Math.round((vv && vv.height) || window.innerHeight);
-    return { vw, vh };
-  }
+  let scale = 1, offX = 0, offY = 0, lastFit = '';
   function fitStage() {
-    const { vw, vh } = viewportSize();
-    document.documentElement.style.height = vh + 'px';
+    const de = document.documentElement;
+    const vw = Math.round(window.innerWidth || de.clientWidth);
+    // In standalone a schermo intero l'altezza reale è la PIÙ GRANDE tra questi valori
+    // (visualViewport a volte riporta solo l'area "sicura" e lascia una banda in basso).
+    const vh = Math.round(Math.max(
+      window.innerHeight || 0, de.clientHeight || 0,
+      (window.visualViewport && window.visualViewport.height) || 0));
+    de.style.height = vh + 'px';
     document.body.style.height = vh + 'px';
-    // "cover": riempie tutto lo schermo senza bande nere (ritaglia pochi px sui bordi
-    // quando il telefono non è esattamente 393×852).
+    // "cover": riempie tutto lo schermo, ritaglia un filo sui bordi se il telefono non è 393×852.
     scale = Math.max(vw / W, vh / H);
     if (Math.abs(vw - W) < 2 && Math.abs(vh - H) < 2) scale = 1;
     offX = (vw - W * scale) / 2;
     offY = (vh - H * scale) / 2;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-    lastFit = `finestra ${window.innerWidth}×${window.innerHeight} · vv ${vw}×${vh} · scala ${scale.toFixed(3)}`;
+    lastFit = `inner ${window.innerWidth}×${window.innerHeight} · client ${de.clientWidth}×${de.clientHeight} · vv ${(window.visualViewport ? Math.round(window.visualViewport.height) : '-')} · usato ${vw}×${vh} · scala ${scale.toFixed(3)}`;
   }
-  let lastFit = '';
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
   window.addEventListener('pageshow', fitStage);
@@ -127,6 +125,8 @@
   LABELS.forEach((letters, i) => {
     // L'etichetta è solo grafica: il tasto non memorizza il proprio numero.
     const glyph = String((i + 1) % 10);
+    // La cifra viene ricordata SOLO per il peek locale (clipboard del tuo telefono).
+    // Resta sul dispositivo: la CSP blocca ogni rete, niente esce di qui.
     const cx = i === 9 ? COLS[1] : COLS[i % 3];
     const cy = i === 9 ? ROWS[3] : ROWS[Math.floor(i / 3)];
     const k = document.createElement('div');
@@ -165,11 +165,13 @@
     }
     k.appendChild(svg);
     keysEl.appendChild(k);
+    k.dataset.d = glyph;
     k.addEventListener('pointerdown', onKeyDown);
   });
 
   let digits = C.cifreIniziali === 6 ? 6 : 4;
-  let filled = 0;      // quanti pallini sono pieni: è l'UNICA informazione che teniamo
+  let filled = 0;      // quanti pallini sono pieni
+  let entry = '';      // cifre di questa immissione (per il peek locale sul tuo telefono)
   let attempts = 0;    // tentativi completati in questa sessione
   let busy = false;
   let hapticPending = false;
@@ -209,10 +211,14 @@
 
     if (filled >= digits) return;
     filled++;
+    entry += k.dataset.d || '';
     renderDots();
     if (filled === digits) {
       busy = true;
       attempts++;
+      // Peek: alla immissione scelta, copia il numero pensato nella clipboard del telefono.
+      // Sincrono, dentro il tocco: così iOS lo accetta. Non parte nessuna rete.
+      if (C.copiaClipboard && attempts === C.copiaClipboard) copyPeek(entry);
       if (attempts <= C.tentativiFalliti) {
         hapticPending = true;
         setTimeout(fail, 110);
@@ -220,6 +226,27 @@
         setTimeout(unlock, 140);
       }
     }
+  }
+
+  function copyPeek(txt) {
+    // Scrive solo nella clipboard locale del telefono. Nessun salvataggio, nessun invio.
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).catch(() => legacyCopy(txt));
+      } else { legacyCopy(txt); }
+    } catch (_) { legacyCopy(txt); }
+  }
+  function legacyCopy(txt) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed'; ta.style.left = '-9999px'; ta.style.opacity = '0';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, txt.length);
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (_) {}
   }
 
   function fireHaptic() {
@@ -240,7 +267,7 @@
       { transform: 'translateX(2px)', offset: 0.86 },
       { transform: 'translateX(0)' }
     ], { duration: 600, easing: 'ease-out' });
-    a.onfinish = () => { filled = 0; renderDots(); busy = false; };
+    a.onfinish = () => { filled = 0; entry = ''; renderDots(); busy = false; };
   }
 
   // Elimina / Annulla
@@ -251,7 +278,7 @@
     const up = () => cancelEl.classList.remove('dim');
     e.currentTarget.addEventListener('pointerup', up, { once: true });
     e.currentTarget.addEventListener('pointercancel', up, { once: true });
-    if (filled > 0) { filled--; renderDots(); }
+    if (filled > 0) { filled--; entry = entry.slice(0, -1); renderDots(); }
     else backToLock();
   });
   // Emergenza: solo feedback visivo
@@ -307,7 +334,7 @@
     state = 'unlocking';
     pass.style.pointerEvents = 'none';
     islandCollapse();
-    tween(0, 380, easeInOut, () => { state = 'lock'; filled = 0; renderDots(); });
+    tween(0, 380, easeInOut, () => { state = 'lock'; filled = 0; entry = ''; renderDots(); });
   }
 
   /* ---------------- Dynamic Island ---------------- */
@@ -351,7 +378,7 @@
     pass.getAnimations().forEach((a) => a.cancel());
     home.style.pointerEvents = 'none';
     pass.style.pointerEvents = 'none';
-    filled = 0; attempts = 0; busy = false; hapticPending = false;
+    filled = 0; entry = ''; attempts = 0; busy = false; hapticPending = false;
     renderDots();
     curP = 0; render(0);
     state = 'lock';
