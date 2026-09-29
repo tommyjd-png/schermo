@@ -24,33 +24,33 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
+  const APPVER = 'v8';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
     const de = document.documentElement;
-    const iw = Math.round(window.innerWidth || de.clientWidth);
-    const ih = Math.round(Math.max(window.innerHeight || 0, de.clientHeight || 0,
-      (window.visualViewport && window.visualViewport.height) || 0));
-    let vw = iw, vh = ih;
-    // Nell'app (schermo intero) le API sotto-riportano l'altezza: lo schermo vero è più alto.
-    // Usiamo le dimensioni FISICHE dello schermo, così la scena riempie tutto e niente resta in alto.
-    if (standalone() && screen.width && screen.height) {
-      vw = Math.min(screen.width, screen.height);
-      vh = Math.max(screen.width, screen.height);
+    const vw = Math.round(window.innerWidth || de.clientWidth);
+    const vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || de.clientHeight);
+    if (standalone()) {
+      // App a schermo intero: riempi la LARGHEZZA (il design è 393 di largo, combacia).
+      // Centra in verticale; lo sfondo dietro (body) copre gli eventuali margini alto/basso.
+      scale = vw / W;
+      offX = (vw - W * scale) / 2;   // = 0
+      offY = (vh - H * scale) / 2;   // centrato
+    } else {
+      // Safari: adatta tutto dentro le barre del browser (serve alla modalità confronto).
+      scale = Math.min(vw / W, vh / H);
+      offX = (vw - W * scale) / 2;
+      offY = (vh - H * scale) / 2;
     }
-    // NON impostiamo l'altezza di html/body: restano inset:0 e coprono tutto lo schermo.
-    scale = Math.max(vw / W, vh / H);   // cover: riempie tutto
-    if (Math.abs(vw - W) < 2 && Math.abs(vh - H) < 2) scale = 1;
-    offX = (vw - W * scale) / 2;
-    offY = (vh - H * scale) / 2;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-    lastFit = `inner ${iw}×${ih} · screen ${screen.width}×${screen.height} · usato ${vw}×${vh} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
+    lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
-    window.addEventListener('resize', fitStage);
+  window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
   window.addEventListener('pageshow', fitStage);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
-  fitStage();
+    fitStage();
   setTimeout(fitStage, 400);
   const toStage = (e) => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
 
