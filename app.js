@@ -32,9 +32,9 @@
     const vh = Math.round(Math.max(
       window.innerHeight || 0, de.clientHeight || 0,
       (window.visualViewport && window.visualViewport.height) || 0));
-    de.style.height = vh + 'px';
-    document.body.style.height = vh + 'px';
-    // "cover": riempie tutto lo schermo, ritaglia un filo sui bordi se il telefono non è 393×852.
+    // NON impostiamo l'altezza di html/body: restano inset:0 e coprono davvero tutto
+    // lo schermo (con lo sfondo dietro), così non compare mai una banda nera.
+    // "cover": la scena riempie tutto, ritaglia un filo sui bordi se il telefono non è 393×852.
     scale = Math.max(vw / W, vh / H);
     if (Math.abs(vw - W) < 2 && Math.abs(vh - H) < 2) scale = 1;
     offX = (vw - W * scale) / 2;
