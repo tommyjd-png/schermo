@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!-- Sicurezza: la pagina non può fare nessuna richiesta di rete (connect-src 'none') né inviare moduli. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; manifest-src 'self'; worker-src 'self'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Schermo">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="img/wallpaper.jpg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+<title>Schermo</title>
+</head>
+<body>
+<div id="stage">
+
+  <div id="wall" class="layer"></div>
+  <div id="dim" class="layer"></div>
+
+  <!-- SCHERMATA DI BLOCCO -->
+  <div id="lock" class="layer">
+    <div class="cc"></div>
+    <svg class="full" viewBox="0 0 393 852" aria-hidden="true">
+      <defs>
+        <clipPath id="clockClip"><text id="clkClip" class="clockT" x="196.5" y="200.8" text-anchor="middle">22:50</text></clipPath>
+        <linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff2ea" stop-opacity=".85"/>
+          <stop offset=".55" stop-color="#ffe2d4" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#ffd7c4" stop-opacity=".22"/>
+        </linearGradient>
+        <filter id="clkShadow" x="-10%" y="-10%" width="120%" height="140%">
+          <feGaussianBlur stdDeviation="2.2"/>
+        </filter>
+      </defs>
+      <text id="dateText" class="date" x="196.5" y="100" text-anchor="middle">Mar 29 set</text>
+      <g id="clockG">
+        <text id="clkShadowT" class="clockT" x="196.5" y="202.6" text-anchor="middle" fill="#3a0e04" fill-opacity=".30" filter="url(#clkShadow)">22:50</text>
+        <g clip-path="url(#clockClip)">
+          <image href="img/wallpaper.jpg" x="0" y="0" width="393" height="852" preserveAspectRatio="none"/>
+          <rect class="clkTint" x="0" y="0" width="393" height="852"/>
+        </g>
+        <text id="clkRim" class="clockT" x="196.5" y="200.8" text-anchor="middle" fill="none" stroke="url(#rimGrad)" stroke-width="1.3">22:50</text>
+      </g>
+    </svg>
+    <img class="widget" id="w1" src="img/widget1.png" alt="">
+    <img class="widget" id="w2" src="img/widget2.png" alt="">
+    <img class="widget" id="w3" src="img/widget3.png" alt="">
+    <img class="widget" id="w4" src="img/widget4.png" alt="">
+  </div>
+
+  <div id="quick" class="layer">
+    <img class="qbtn" id="torch" src="img/btn_torch.png" alt="">
+    <img class="qbtn" id="camera" src="img/btn_camera.png" alt="">
+  </div>
+
+  <!-- TASTIERINO -->
+  <div id="pass" class="layer">
+    <svg class="full" viewBox="0 0 393 852" aria-hidden="true">
+      <text id="passTitle" class="ptitle" x="197" y="172.3" text-anchor="middle">Inserisci codice</text>
+      <text id="btnEmergency" class="btxt" x="95" y="789.7" text-anchor="middle">Emergenza</text>
+      <text id="btnCancel" class="btxt" x="297.7" y="789.7" text-anchor="middle">Annulla</text>
+    </svg>
+    <div id="dots"></div>
+    <div id="keys"></div>
+    <div class="hit" id="hitEmergency"></div>
+    <div class="hit" id="hitCancel"></div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="layer">
+    <img src="img/home.jpg" alt="">
+    <svg class="full" viewBox="0 0 393 852" aria-hidden="true">
+      <text id="homeDow" class="hdow" x="37.7" y="109">MARTEDÌ</text>
+      <text id="homeDay" class="hday" x="37.3" y="141.7">29</text>
+    </svg>
+    <div id="hotspots"></div>
+  </div>
+
+  <!-- DYNAMIC ISLAND (si fonde con quella fisica) -->
+  <div id="island">
+    <svg class="ic" id="islLock" width="17" height="22" viewBox="0 0 17 22">
+      <path id="shackle" d="M4.1 10.2V6.6a4.4 4.4 0 0 1 8.8 0v3.6" fill="none" stroke="#d5d5d5" stroke-width="2.3" stroke-linecap="round"/>
+      <rect x="0.8" y="9.4" width="15.4" height="12.1" rx="3" fill="#d5d5d5"/>
+    </svg>
+    <svg class="ic faceG" id="islFace" width="22" height="21" viewBox="0 0 22 21" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 6V3.6Q1 1 3.6 1H6M16 1h2.4Q21 1 21 3.6V6M21 15v2.4q0 2.6-2.6 2.6H16M6 20H3.6Q1 20 1 17.4V15"/>
+      <path d="M7 7v2M15 7v2M11 7v4.4h-1M7.6 14.2q3.4 2.6 6.8 0"/>
+    </svg>
+  </div>
+
+  <!-- Interruttore nascosto usato solo per il feedback aptico (trucco di Safari). Non salva nulla. -->
+  <label id="hapLabel" aria-hidden="true"><input id="hap" type="checkbox" switch tabindex="-1"></label>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
