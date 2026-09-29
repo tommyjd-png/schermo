@@ -8,7 +8,9 @@
   -webkit-user-select: none; user-select: none;
 }
 html, body {
-  position: fixed; inset: 0; overflow: hidden;
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh; height: 100svh; height: 100lvh;  /* schermo pieno, incl. safe area */
+  overflow: hidden;
   background: #000 url(img/wallpaper.jpg) center center / cover no-repeat;
   overscroll-behavior: none; touch-action: none;
 }

@@ -24,27 +24,26 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v8';
+  const APPVER = 'v9';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
     const de = document.documentElement;
     const vw = Math.round(window.innerWidth || de.clientWidth);
-    const vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || de.clientHeight);
+    let vh;
     if (standalone()) {
-      // App a schermo intero: riempi la LARGHEZZA (il design è 393 di largo, combacia).
-      // Centra in verticale; lo sfondo dietro (body) copre gli eventuali margini alto/basso.
-      scale = vw / W;
-      offX = (vw - W * scale) / 2;   // = 0
-      offY = (vh - H * scale) / 2;   // centrato
+      // App: il body è alto 100lvh = SCHERMO PIENO (fino all'home indicator). Riempi con "cover".
+      vh = Math.round(document.body.clientHeight || de.clientHeight || window.innerHeight);
+      scale = Math.max(vw / W, vh / H);
     } else {
-      // Safari: adatta tutto dentro le barre del browser (serve alla modalità confronto).
+      // Safari: adatta dentro l'area visibile (barre del browser), per la modalità confronto.
+      vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || de.clientHeight);
       scale = Math.min(vw / W, vh / H);
-      offX = (vw - W * scale) / 2;
-      offY = (vh - H * scale) / 2;
     }
+    offX = (vw - W * scale) / 2;
+    offY = (vh - H * scale) / 2;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-    lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
+    lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · body ${document.body.clientHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · usato ${vw}×${vh} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
