@@ -30,19 +30,16 @@
   function fitStage() {
     const de = document.documentElement;
     const vw = Math.round(window.innerWidth || de.clientWidth);
-    let vh;
-    if (standalone()) {
-      // App: il body è alto 100lvh = SCHERMO PIENO (fino all'home indicator). Riempi con "cover".
-      vh = Math.round(document.body.clientHeight || de.clientHeight || window.innerHeight);
-      scale = Math.min(vw / W, vh / H);   // contain: non taglia; lo sfondo copre i margini
-    } else {
-      // Safari: adatta dentro l'area visibile (barre del browser), per la modalità confronto.
-      vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || de.clientHeight);
-      scale = Math.min(vw / W, vh / H);
-    }
+    const vh = Math.round(document.body.clientHeight || window.innerHeight || de.clientHeight);
+    scale = Math.min(vw / W, vh / H);
     offX = (vw - W * scale) / 2;
-    offY = (vh - H * scale) / 2;
+    offY = 0;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
+    document.body.style.backgroundColor = '#1b0c06';
+    document.body.style.backgroundImage = 'url("img/wallpaper.jpg")';
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundPosition = 'center top';
+    document.body.style.backgroundSize = `${W * scale}px ${H * scale}px`;
     lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · body ${document.body.clientHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · usato ${vw}×${vh} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
   window.addEventListener('resize', fitStage);
