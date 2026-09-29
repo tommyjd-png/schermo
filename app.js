@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v9';
+  const APPVER = 'v10';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -34,7 +34,7 @@
     if (standalone()) {
       // App: il body è alto 100lvh = SCHERMO PIENO (fino all'home indicator). Riempi con "cover".
       vh = Math.round(document.body.clientHeight || de.clientHeight || window.innerHeight);
-      scale = Math.max(vw / W, vh / H);
+      scale = Math.min(vw / W, vh / H);   // contain: non taglia; lo sfondo copre i margini
     } else {
       // Safari: adatta dentro l'area visibile (barre del browser), per la modalità confronto.
       vh = Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight || de.clientHeight);
