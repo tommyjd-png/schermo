@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v11';
+  const APPVER = 'v12';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -51,19 +51,6 @@
   if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
     fitStage();
   setTimeout(fitStage, 400);
-
-  // Diagnostica: mostra i numeri reali DENTRO l'app per 12 secondi, poi sparisce.
-  if (standalone()) {
-    const dbg = document.createElement('div');
-    dbg.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;' +
-      'font:11px ui-monospace,Menlo,monospace;color:#fff;background:rgba(0,0,0,.72);' +
-      'padding:6px 8px;text-align:center;pointer-events:none';
-    document.body.appendChild(dbg);
-    const upd = () => { dbg.textContent = lastFit + ' · sh ' + screen.width + '×' + screen.height; };
-    upd();
-    const iv = setInterval(upd, 500);
-    setTimeout(() => { clearInterval(iv); dbg.remove(); }, 12000);
-  }
   const toStage = (e) => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
 
   /* ---------------- misura del testo (per replicare le larghezze degli screenshot) ---------------- */
