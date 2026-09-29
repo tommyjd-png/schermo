@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v13';
+  const APPVER = 'v14';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {

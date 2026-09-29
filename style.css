@@ -11,7 +11,10 @@
    indicator): mettendo qui lo sfondo, sotto non può mai comparire il nero del browser. */
 html {
   margin: 0; padding: 0; min-height: 100%;
-  background: #3a1a12 url(img/wallpaper.jpg) center center / cover no-repeat;
+  /* Sfondo allineato ESATTAMENTE a quello della scena (stessa larghezza, ancorato in alto):
+     così il livello di fondo continua senza stacco. Sotto lo sfondo, il colore del bordo
+     inferiore dell'immagine (#1b0c06) riempie la zona dell'home indicator, invisibile. */
+  background: #1b0c06 url(img/wallpaper.jpg) center top / 100% auto no-repeat;
 }
 body {
   position: fixed; top: 0; left: 0;
