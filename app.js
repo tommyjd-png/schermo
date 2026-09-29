@@ -24,38 +24,30 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0;
-  const standalone = () => navigator.standalone === true ||
-    (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-  // Misura un elemento alto 100lvh/100vh: su iOS è spesso più affidabile di innerHeight.
-  const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:100vh;height:100lvh;visibility:hidden;pointer-events:none';
-  document.documentElement.appendChild(probe);
   function viewportSize() {
-    let vw = window.innerWidth, vh = window.innerHeight;
-    vh = Math.max(vh, document.documentElement.clientHeight || 0, probe.offsetHeight || 0);
-    // App dalla Home (iOS 26): innerHeight può escludere la barra di stato → bande nere.
-    // A schermo intero la pagina copre tutto lo schermo, quindi usiamo le misure dello schermo.
-    if (standalone() && screen.width && screen.height) {
-      const sw = Math.min(screen.width, screen.height), sh = Math.max(screen.width, screen.height);
-      if (Math.abs(vw - sw) < 40) { vw = sw; vh = sh; }
-    }
+    const vv = window.visualViewport;
+    const vw = Math.round((vv && vv.width) || window.innerWidth);
+    const vh = Math.round((vv && vv.height) || window.innerHeight);
     return { vw, vh };
   }
   function fitStage() {
     const { vw, vh } = viewportSize();
     document.documentElement.style.height = vh + 'px';
     document.body.style.height = vh + 'px';
-    scale = Math.min(vw / W, vh / H);
-    if (Math.abs(vw - W) < 2 && vh >= H - 2) scale = 1;   // iPhone 15 Pro a schermo intero
+    // "cover": riempie tutto lo schermo senza bande nere (ritaglia pochi px sui bordi
+    // quando il telefono non è esattamente 393×852).
+    scale = Math.max(vw / W, vh / H);
+    if (Math.abs(vw - W) < 2 && Math.abs(vh - H) < 2) scale = 1;
     offX = (vw - W * scale) / 2;
-    offY = scale === 1 ? 0 : (vh - H * scale) / 2;
+    offY = (vh - H * scale) / 2;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-    lastFit = `finestra ${window.innerWidth}×${window.innerHeight} · schermo ${screen.width}×${screen.height} · usato ${vw}×${vh} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
+    lastFit = `finestra ${window.innerWidth}×${window.innerHeight} · vv ${vw}×${vh} · scala ${scale.toFixed(3)}`;
   }
   let lastFit = '';
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
   window.addEventListener('pageshow', fitStage);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
   fitStage();
   setTimeout(fitStage, 400);
   const toStage = (e) => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
