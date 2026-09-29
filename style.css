@@ -64,13 +64,18 @@ svg text { font-family: var(--sf); }
 .key {
   position: absolute; width: 76.3px; height: 76.3px; margin: -38.15px 0 0 -38.15px;
   border-radius: 50%; overflow: hidden; transform: translateZ(0);
+  /* Safari non ritaglia i figli con filtro dentro overflow+border-radius: forziamo il cerchio */
+  clip-path: circle(50% at 50% 50%); -webkit-clip-path: circle(50% at 50% 50%);
+  -webkit-mask-image: -webkit-radial-gradient(white, black); isolation: isolate;
   transition: transform .4s cubic-bezier(.3, 1.6, .5, 1);
 }
 .key .lens {
+  clip-path: circle(38.15px at 50% 50%); -webkit-clip-path: circle(38.15px at 50% 50%);
   position: absolute; inset: -9px; background-image: url(img/wallpaper.jpg);
   background-repeat: no-repeat; filter: blur(3px) brightness(.706);
 }
 .key .edge {
+  clip-path: circle(38.15px at 50% 50%); -webkit-clip-path: circle(38.15px at 50% 50%);
   position: absolute; inset: -9px; background-image: url(img/wallpaper.jpg);
   background-repeat: no-repeat; filter: blur(1.2px) brightness(.72);
   -webkit-mask-image: radial-gradient(circle closest-side at 50% 50%, transparent 63%, #000 74%);

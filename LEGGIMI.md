@@ -10,8 +10,8 @@ Le cifre digitate non vengono mai lette: ogni tasto aumenta soltanto un contator
 La pagina ha una regola di sicurezza che blocca qualsiasi connessione di rete. Niente salvataggi, niente appunti, niente schermate nascoste.
 
 ## Comandi segreti
-- **4 o 6 cifre**: sulla schermata di blocco tieni premuto l'orologio per circa mezzo secondo.
-  Metà sinistra ("22") = 4 cifre. Metà destra ("50") = 6 cifre.
+- **4 o 6 cifre**: sulla schermata di blocco tocca l'icona della fotocamera: alterna 4 ↔ 6 cifre.
+  In alternativa tieni premuto l'orologio per mezzo secondo: metà sinistra = 4, metà destra = 6.
   Conferma discreta: la lineetta in alto a destra lampeggia 1 volta (4) o 2 volte (6).
 - **Ricominciare dopo lo sblocco**: nella Home tieni premuto "Cerca" per 1 secondo.
   L'app riparte comunque dalla schermata di blocco ogni volta che la chiudi e la riapri.

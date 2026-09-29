@@ -24,16 +24,40 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0;
+  const standalone = () => navigator.standalone === true ||
+    (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  // Misura un elemento alto 100lvh/100vh: su iOS è spesso più affidabile di innerHeight.
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:100vh;height:100lvh;visibility:hidden;pointer-events:none';
+  document.documentElement.appendChild(probe);
+  function viewportSize() {
+    let vw = window.innerWidth, vh = window.innerHeight;
+    vh = Math.max(vh, document.documentElement.clientHeight || 0, probe.offsetHeight || 0);
+    // App dalla Home (iOS 26): innerHeight può escludere la barra di stato → bande nere.
+    // A schermo intero la pagina copre tutto lo schermo, quindi usiamo le misure dello schermo.
+    if (standalone() && screen.width && screen.height) {
+      const sw = Math.min(screen.width, screen.height), sh = Math.max(screen.width, screen.height);
+      if (Math.abs(vw - sw) < 40) { vw = sw; vh = sh; }
+    }
+    return { vw, vh };
+  }
   function fitStage() {
-    const vw = window.innerWidth, vh = window.innerHeight;
+    const { vw, vh } = viewportSize();
+    document.documentElement.style.height = vh + 'px';
+    document.body.style.height = vh + 'px';
     scale = Math.min(vw / W, vh / H);
     if (Math.abs(vw - W) < 2 && vh >= H - 2) scale = 1;   // iPhone 15 Pro a schermo intero
     offX = (vw - W * scale) / 2;
     offY = scale === 1 ? 0 : (vh - H * scale) / 2;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
+    lastFit = `finestra ${window.innerWidth}×${window.innerHeight} · schermo ${screen.width}×${screen.height} · usato ${vw}×${vh} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
+  let lastFit = '';
   window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
+  window.addEventListener('pageshow', fitStage);
   fitStage();
+  setTimeout(fitStage, 400);
   const toStage = (e) => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
 
   /* ---------------- misura del testo (per replicare le larghezze degli screenshot) ---------------- */
@@ -381,7 +405,15 @@
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return;
     clearTimeout(lpTimer);
-    if (drag.btn) drag.btn.classList.remove('down');
+    if (drag.btn) {
+      drag.btn.classList.remove('down');
+      // Comando segreto: tocco sulla fotocamera = alterna 4 ↔ 6 cifre
+      if (drag.btn.id === 'camera' && !drag.moved && state === 'lock') {
+        const n = digits === 4 ? 6 : 4;
+        setDigits(n);
+        pulseHint(n === 4 ? 1 : 2);
+      }
+    }
     if (state === 'drag') {
       if (curP > 0.22 || drag.v < -0.35) openPass();
       else { state = 'unlocking'; tween(0, 300, easeOut, () => { state = 'lock'; }); }
@@ -489,7 +521,7 @@
     panel.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
     const map = { sDim: 'dimensione', sPeso: 'peso', sLarg: 'larghezza', sAlt: 'altezza', sBase: 'baseline' };
     const showVals = () => {
-      $('#vals').textContent = 'Copia in config.js → orologio:\n' + JSON.stringify(C.orologio, null, 1).replace(/"(\w+)":/g, '$1:');
+      $('#vals').textContent = 'Copia in config.js → orologio:\n' + JSON.stringify(C.orologio, null, 1).replace(/"(\w+)":/g, '$1:') + '\n\n' + lastFit;
     };
     Object.entries(map).forEach(([id, k]) => {
       const s = $('#' + id);

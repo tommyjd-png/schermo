@@ -35,6 +35,11 @@
           <stop offset=".55" stop-color="#ffe2d4" stop-opacity=".35"/>
           <stop offset="1" stop-color="#ffd7c4" stop-opacity=".22"/>
         </linearGradient>
+        <!-- Bordo dell'orologio ricavato dalla sagoma piena: niente linee interne dove i tratti si sovrappongono -->
+        <filter id="rimEdge" x="-5%" y="-10%" width="110%" height="120%">
+          <feMorphology in="SourceAlpha" operator="erode" radius="1.1" result="inner"/>
+          <feComposite in="SourceGraphic" in2="inner" operator="out"/>
+        </filter>
         <filter id="clkShadow" x="-10%" y="-10%" width="120%" height="140%">
           <feGaussianBlur stdDeviation="2.2"/>
         </filter>
@@ -46,7 +51,7 @@
           <image href="img/wallpaper.jpg" x="0" y="0" width="393" height="852" preserveAspectRatio="none"/>
           <rect class="clkTint" x="0" y="0" width="393" height="852"/>
         </g>
-        <text id="clkRim" class="clockT" x="196.5" y="200.8" text-anchor="middle" fill="none" stroke="url(#rimGrad)" stroke-width="1.3">22:50</text>
+        <text id="clkRim" class="clockT" x="196.5" y="200.8" text-anchor="middle" fill="url(#rimGrad)" filter="url(#rimEdge)">22:50</text>
       </g>
     </svg>
     <img class="widget" id="w1" src="img/widget1.png" alt="">

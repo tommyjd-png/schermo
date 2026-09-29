@@ -6,8 +6,10 @@
 window.CONFIG = {
 
   // Quante cifre mostra il tastierino all'apertura: 4 oppure 6.
-  // Durante il numero lo cambi di nascosto tenendo premuto l'orologio:
-  //   metà sinistra ("22") = 4 cifre, metà destra ("50") = 6 cifre.
+  // Durante il numero lo cambi di nascosto:
+  //   - tocco sull'icona della fotocamera = alterna 4 ↔ 6 cifre
+  //   - oppure pressione lunga sull'orologio: metà sinistra = 4, metà destra = 6.
+  // Conferma: la lineetta in alto a destra lampeggia 1 volta (4) o 2 volte (6).
   cifreIniziali: 4,
 
   // Quanti tentativi falliscono prima dello sblocco (2 = si sblocca al terzo).

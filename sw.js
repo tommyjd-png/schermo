@@ -4,7 +4,7 @@
   nulla di ciò che viene digitato.
   QUANDO CARICHI FILE MODIFICATI SU GITHUB, AUMENTA QUESTO NUMERO (v1 → v2 → v3...).
 */
-const VERSIONE = 'schermo-v1';
+const VERSIONE = 'schermo-v2';
 const FILE = [
   './', 'index.html', 'style.css', 'config.js', 'app.js', 'manifest.webmanifest',
   'img/wallpaper.jpg', 'img/home.jpg', 'img/widget1.png', 'img/widget2.png', 'img/widget3.png',
