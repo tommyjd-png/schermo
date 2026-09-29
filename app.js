@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v12';
+  const APPVER = 'v13';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -50,7 +50,9 @@
   window.addEventListener('pageshow', fitStage);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
     fitStage();
-  setTimeout(fitStage, 400);
+  [60, 150, 400, 800, 1500].forEach((ms) => setTimeout(fitStage, ms));
+  window.addEventListener('scroll', fitStage, { passive: true });
+  document.addEventListener('touchend', () => setTimeout(fitStage, 50), { passive: true });
   const toStage = (e) => ({ x: (e.clientX - offX) / scale, y: (e.clientY - offY) / scale });
 
   /* ---------------- misura del testo (per replicare le larghezze degli screenshot) ---------------- */

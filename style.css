@@ -7,16 +7,21 @@
   -webkit-touch-callout: none;
   -webkit-user-select: none; user-select: none;
 }
-html, body {
+/* L'elemento html copre SEMPRE tutto lo schermo fisico (incluse le safe area / home
+   indicator): mettendo qui lo sfondo, sotto non può mai comparire il nero del browser. */
+html {
+  margin: 0; padding: 0; min-height: 100%;
+  background: #3a1a12 url(img/wallpaper.jpg) center center / cover no-repeat;
+}
+body {
   position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh; height: 100svh; height: 100lvh;  /* schermo pieno, incl. safe area */
-  overflow: hidden;
-  background: #000 url(img/wallpaper.jpg) center center / cover no-repeat;
+  width: 100vw; height: 100vh; height: 100svh; height: 100dvh; height: 100lvh;
+  overflow: hidden; background: transparent;
   overscroll-behavior: none; touch-action: none;
 }
 #stage {
   position: absolute; left: 0; top: 0; width: 393px; height: 852px;
-  transform-origin: 0 0; overflow: hidden; background: #000;
+  transform-origin: 0 0; overflow: hidden; background: transparent;
   font-family: var(--sf);
 }
 .layer { position: absolute; left: 0; top: 0; width: 393px; height: 852px; }
