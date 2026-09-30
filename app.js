@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v14';
+  const APPVER = 'v15-diagnostica';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -521,7 +521,7 @@
   }
 
   /* ---------------- modalità confronto (apri l'indirizzo con ?confronto) ---------------- */
-  if (/[?&]confronto/.test(location.search)) {
+  if (standalone() || /[?&]confronto/.test(location.search)) {
     const ov = document.createElement('img');
     ov.id = 'refOverlay';
     stage.appendChild(ov);
