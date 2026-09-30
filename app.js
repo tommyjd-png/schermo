@@ -39,7 +39,8 @@
     document.body.style.backgroundImage = 'url("img/wallpaper.jpg")';
     document.body.style.backgroundRepeat = 'no-repeat';
     document.body.style.backgroundPosition = 'center top';
-    document.body.style.backgroundSize = `${W * scale}px ${H * scale}px`;
+    document.body.style.backgroundSize = 'cover';
+    document.documentElement.style.backgroundSize = 'cover';
     lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · body ${document.body.clientHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · usato ${vw}×${vh} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
   window.addEventListener('resize', fitStage);
