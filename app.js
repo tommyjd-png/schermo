@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v16';
+  const APPVER = 'v17';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -85,7 +85,7 @@
   const GG = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
   const MM = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
   const GGL = ['DOMENICA', 'LUNEDÌ', 'MARTEDÌ', 'MERCOLEDÌ', 'GIOVEDÌ', 'VENERDÌ', 'SABATO'];
-  const clockEls = [$('#clkClip'), $('#clkShadowT'), $('#clkRim')];
+  const clockEls = [$('#clkFill'), $('#clkShadowT'), $('#clkRim')];
   const dateEl = $('#dateText'), dowEl = $('#homeDow'), dayEl = $('#homeDay');
 
   function applyTypeSettings() {
@@ -94,7 +94,7 @@
       el.style.fontSize = o.dimensione + 'px';
       el.style.fontWeight = o.peso;
     });
-    $('#clkClip').setAttribute('y', o.baseline);
+    $('#clkFill').setAttribute('y', o.baseline);
     $('#clkRim').setAttribute('y', o.baseline);
     $('#clkShadowT').setAttribute('y', o.baseline + 1.8);
     const b = o.baseline;
