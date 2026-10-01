@@ -29,7 +29,13 @@
     <div class="cc"></div>
     <svg class="full" viewBox="0 0 393 852" aria-hidden="true">
       <defs>
-        <clipPath id="clockClip"><text id="clkClip" class="clockT" x="196.5" y="200.8" text-anchor="middle">22:50</text></clipPath>
+        <!-- Riempimento dell'orologio: sfondo + tinta come motivo, applicato direttamente al testo.
+             (Prima era un clipPath: Safari ignora textLength dentro i clipPath, quindi il riempimento
+             usciva dai bordi delle cifre e si vedevano strisce di colore diverso ai lati.) -->
+        <pattern id="clkFillPat" patternUnits="userSpaceOnUse" x="0" y="0" width="393" height="852">
+          <image href="img/wallpaper.jpg" x="0" y="0" width="393" height="852" preserveAspectRatio="none"/>
+          <rect class="clkTint" x="0" y="0" width="393" height="852"/>
+        </pattern>
         <linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#fff2ea" stop-opacity=".85"/>
           <stop offset=".55" stop-color="#ffe2d4" stop-opacity=".35"/>
@@ -47,10 +53,7 @@
       <text id="dateText" class="date" x="196.5" y="100" text-anchor="middle">Mar 29 set</text>
       <g id="clockG">
         <text id="clkShadowT" class="clockT" x="196.5" y="202.6" text-anchor="middle" fill="#3a0e04" fill-opacity=".30" filter="url(#clkShadow)">22:50</text>
-        <g clip-path="url(#clockClip)">
-          <image href="img/wallpaper.jpg" x="0" y="0" width="393" height="852" preserveAspectRatio="none"/>
-          <rect class="clkTint" x="0" y="0" width="393" height="852"/>
-        </g>
+        <text id="clkFill" class="clockT" x="196.5" y="200.8" text-anchor="middle" fill="url(#clkFillPat)">22:50</text>
         <text id="clkRim" class="clockT" x="196.5" y="200.8" text-anchor="middle" fill="url(#rimGrad)" filter="url(#rimEdge)">22:50</text>
       </g>
     </svg>
