@@ -24,24 +24,30 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v15-diagnostica';
+  const APPVER = 'v16';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
-    const de = document.documentElement;
+    const de = document.documentElement, body = document.body;
     const vw = Math.round(window.innerWidth || de.clientWidth);
-    const vh = Math.round(document.body.clientHeight || window.innerHeight || de.clientHeight);
+    let vh = Math.round(Math.max(window.innerHeight || 0, de.clientHeight || 0));
+    if (standalone()) {
+      // iOS 26, app web a schermo intero: l'altezza riportata è corta della safe area
+      // superiore (~59 pt) e sotto resterebbe una banda nera. Usiamo l'altezza fisica
+      // dello schermo, solo se la larghezza combacia (quindi siamo davvero a tutto schermo).
+      const portrait = window.innerHeight >= window.innerWidth;
+      const a = screen.width, b = screen.height;
+      const sw = portrait ? Math.min(a, b) : Math.max(a, b);
+      const sh = portrait ? Math.max(a, b) : Math.min(a, b);
+      if (Math.abs(sw - vw) <= 2 && sh > vh && sh - vh <= 120) vh = sh;
+      de.style.height = vh + 'px';
+      body.style.height = vh + 'px';
+    }
     scale = Math.min(vw / W, vh / H);
     offX = (vw - W * scale) / 2;
     offY = 0;
     stage.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-    document.body.style.backgroundColor = '#1b0c06';
-    document.body.style.backgroundImage = 'url("img/wallpaper.jpg")';
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundPosition = 'center top';
-    document.body.style.backgroundSize = 'cover';
-    document.documentElement.style.backgroundSize = 'cover';
-    lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · body ${document.body.clientHeight} · vv ${window.visualViewport ? Math.round(window.visualViewport.height) : '-'} · usato ${vw}×${vh} · off ${Math.round(offY)} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
+    lastFit = `${APPVER} · inner ${vw}×${window.innerHeight} · screen ${screen.width}×${screen.height} · usato ${vw}×${vh} · scala ${scale.toFixed(3)}${standalone() ? ' · app' : ' · Safari'}`;
   }
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', () => setTimeout(fitStage, 300));
@@ -521,7 +527,7 @@
   }
 
   /* ---------------- modalità confronto (apri l'indirizzo con ?confronto) ---------------- */
-  if (standalone() || /[?&]confronto/.test(location.search)) {
+  if (/[?&]confronto/.test(location.search)) {
     const ov = document.createElement('img');
     ov.id = 'refOverlay';
     stage.appendChild(ov);
