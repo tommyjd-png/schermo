@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v19';
+  const APPVER = 'v22';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -197,6 +197,7 @@
   let digits = C.cifreIniziali === 6 ? 6 : 4;
   let filled = 0;      // quanti pallini sono pieni
   let entry = '';      // cifre di questa immissione (per il peek locale sul tuo telefono)
+  let entries = [];    // immissioni completate, mostrate solo nella finta ricerca (restano in memoria, mai salvate)
   let attempts = 0;    // tentativi completati in questa sessione
   let busy = false;
   let hapticPending = false;
@@ -241,6 +242,7 @@
     if (filled === digits) {
       busy = true;
       attempts++;
+      entries.push(entry);
       // Peek: alla immissione scelta, copia il numero pensato nella clipboard del telefono.
       // Sincrono, dentro il tocco: così iOS lo accetta. Non parte nessuna rete.
       if (C.copiaClipboard && attempts === C.copiaClipboard) copyPeek(entry);
@@ -391,7 +393,12 @@
       home.animate([{ opacity: 0, transform: 'scale(1.16)' }, { opacity: 1, transform: 'scale(1)' }],
         { duration: 520, easing: 'cubic-bezier(.2,.85,.25,1)', fill: 'forwards' });
       islandCollapse();
-      setTimeout(() => { state = 'home'; busy = false; }, 520);
+      setTimeout(() => {
+        state = 'home'; busy = false;
+        // fissa lo stato finale e libera l'animazione, così la Home si può trasformare per la ricerca
+        home.style.opacity = '1'; home.style.transform = 'none';
+        home.getAnimations().forEach((a) => a.cancel());
+      }, 520);
     }, 330);
   }
 
@@ -404,6 +411,10 @@
     home.style.pointerEvents = 'none';
     pass.style.pointerEvents = 'none';
     filled = 0; entry = ''; attempts = 0; busy = false; hapticPending = false;
+    entries = [];
+    cancelAnimationFrame(spotRaf); hdrag = null; sdrag = null; spotP = 0; renderSpot(0);
+    spot.style.pointerEvents = 'none';
+    home.style.opacity = ''; home.style.transform = ''; home.style.filter = '';
     renderDots();
     curP = 0; render(0);
     state = 'lock';
@@ -500,7 +511,7 @@
       e.stopPropagation();
       if (state !== 'home') return;
       d.classList.add('down');
-      if (id === 'cerca') t = setTimeout(resetAll, 900);   // tieni premuto "Cerca" ~1 s → torna al blocco
+      if (id === 'cerca') t = setTimeout(() => { if (state === 'home') resetAll(); }, 900);   // tieni premuto "Cerca" ~1 s → torna al blocco
     });
     const up = () => { d.classList.remove('down'); clearTimeout(t); };
     d.addEventListener('pointerup', up);
@@ -508,6 +519,109 @@
     d.addEventListener('pointerleave', up);
     hsWrap.appendChild(d);
   });
+
+  /* ---------------- Ricerca (Spotlight): swipe verso il basso dalla Home ---------------- */
+  // Nel sottotitolo del secondo risultato compaiono le immissioni fatte sul tastierino.
+  // Restano solo in memoria in questa pagina: niente salvataggi, niente rete; si azzerano a ogni ripartenza.
+  const spot = $('#spot'), spotTop = $('#spotTop'), spotKb = $('#spotKb');
+  const spotName = $('#spotName'), spotSub = $('#spotSub');
+  const KB_H = 310.33, SPOT_PULL = 140;
+  const SUB_DEFAULT = 'instagram.com \u00b7 Ultima visita: sab 19 set';
+  const spotNameS = factor('Instagram', 17, 600, 77.3);
+  const spotSubS = factor(SUB_DEFAULT, 15, 400, 273.7);
+  let spotP = 0, spotRaf = 0, hdrag = null, sdrag = null;
+
+  function renderSpot(p) {
+    const q = Math.max(0, Math.min(1, p));
+    spot.style.visibility = q > 0 ? 'visible' : 'hidden';
+    if (state !== 'lock') {
+      home.style.transform = q > 0 ? `scale(${(1 - 0.06 * q).toFixed(4)})` : 'none';
+      home.style.filter = q > 0 ? `blur(${(q * 14).toFixed(1)}px)` : '';
+    }
+    spotTop.style.opacity = Math.min(1, q * 1.4).toFixed(3);
+    spotTop.style.transform = `translateY(${(-24 * (1 - q)).toFixed(1)}px)`;
+    spotKb.style.transform = `translateY(${(KB_H * (1 - easeOut(q))).toFixed(1)}px)`;
+  }
+  function fillSpot() {
+    setFitted([spotName], 'bianca', 17, 600, spotNameS);
+    setFitted([spotSub], entries.length ? entries.join(' \u00b7 ') : SUB_DEFAULT, 15, 400, spotSubS);
+  }
+  function tweenSpot(to, dur, done) {
+    cancelAnimationFrame(spotRaf);
+    const from = spotP, t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      spotP = from + (to - from) * easeOut(k);
+      renderSpot(spotP);
+      if (k < 1) spotRaf = requestAnimationFrame(step);
+      else if (done) done();
+    };
+    spotRaf = requestAnimationFrame(step);
+  }
+  function openSpot() {
+    state = 'spotanim';
+    home.style.pointerEvents = 'none';
+    tweenSpot(1, 320, () => { state = 'spot'; spot.style.pointerEvents = 'auto'; });
+  }
+  function closeSpot() {
+    state = 'spotanim';
+    spot.style.pointerEvents = 'none';
+    tweenSpot(0, 300, () => { state = 'home'; home.style.pointerEvents = 'auto'; });
+  }
+
+  // swipe verso il basso dalla Home
+  home.addEventListener('pointerdown', (e) => {
+    if (state !== 'home' || hdrag) return;
+    const p = toStage(e);
+    if (p.y < 60) return;
+    hdrag = { id: e.pointerId, y0: p.y, lastY: p.y, lastT: performance.now(), v: 0, moved: false };
+  }, true);
+  // dalla ricerca: swipe verso l'alto o tocco sopra la tastiera = torna alla Home
+  spot.addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    if (state !== 'spot') return;
+    const p = toStage(e);
+    sdrag = { id: e.pointerId, y0: p.y, moved: false };
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (sdrag && e.pointerId === sdrag.id) {
+      if (Math.abs(toStage(e).y - sdrag.y0) > 10) sdrag.moved = true;
+      return;
+    }
+    if (!hdrag || e.pointerId !== hdrag.id) return;
+    const p = toStage(e), dy = p.y - hdrag.y0, now = performance.now();
+    hdrag.v = (p.y - hdrag.lastY) / Math.max(1, now - hdrag.lastT);
+    hdrag.lastY = p.y; hdrag.lastT = now;
+    if (!hdrag.moved) {
+      if (dy < -10) { hdrag = null; return; }
+      if (dy > 10) {
+        hdrag.moved = true;
+        state = 'spotdrag';
+        cancelAnimationFrame(spotRaf);
+        hsWrap.querySelectorAll('.down').forEach((d) => d.classList.remove('down'));
+        fillSpot();
+      }
+    }
+    if (hdrag && hdrag.moved) {
+      spotP = Math.min(1, Math.max(0, dy - 10) / SPOT_PULL);
+      renderSpot(spotP);
+    }
+  });
+  function endSpotGestures(e) {
+    if (sdrag && e.pointerId === sdrag.id) {
+      const p = toStage(e), dy = p.y - sdrag.y0, moved = sdrag.moved;
+      sdrag = null;
+      if (state === 'spot' && (dy < -30 || (!moved && p.y < 541))) closeSpot();
+      return;
+    }
+    if (!hdrag || e.pointerId !== hdrag.id) return;
+    const moved = hdrag.moved, v = hdrag.v;
+    hdrag = null;
+    if (!moved) return;
+    if (spotP > 0.35 || v > 0.3) openSpot(); else closeSpot();
+  }
+  stage.addEventListener('pointerup', endSpotGestures);
+  stage.addEventListener('pointercancel', endSpotGestures);
 
   // Quando l'app va in background o si chiude, al rientro riparte dalla schermata di blocco.
   document.addEventListener('visibilitychange', () => {
