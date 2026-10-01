@@ -24,7 +24,7 @@
 
   /* ---------------- adattamento allo schermo ---------------- */
   let scale = 1, offX = 0, offY = 0, lastFit = '';
-  const APPVER = 'v17';
+  const APPVER = 'v19';
   const standalone = () => (navigator.standalone === true) ||
     (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   function fitStage() {
@@ -98,7 +98,7 @@
     $('#clkRim').setAttribute('y', o.baseline);
     $('#clkShadowT').setAttribute('y', o.baseline + 1.8);
     const b = o.baseline;
-    $('#clockG').setAttribute('transform', `translate(0 ${b}) scale(1 ${o.altezza}) translate(0 ${-b})`);
+    clockTransform();
     dateEl.style.fontSize = d.dimensione + 'px';
     dateEl.style.fontWeight = d.peso;
     dateEl.setAttribute('y', d.baseline);
@@ -107,6 +107,13 @@
   }
 
   let lastKey = '';
+  let clkSx = 1;
+  function clockTransform() {
+    const o = C.orologio, b = o.baseline, cx = 196.5;
+    $('#clockG').setAttribute('transform', `translate(${cx} ${b}) scale(${clkSx} ${o.altezza}) translate(${-cx} ${-b})`);
+    // trasformazione inversa sullo sfondo dentro le cifre, così resta allineato allo sfondo vero
+    $('#clkFillPat').setAttribute('patternTransform', `translate(${cx} ${b}) scale(${1 / clkSx} ${1 / o.altezza}) translate(${-cx} ${-b})`);
+  }
   function tick() {
     const now = new Date();
     const h = C.zeroIniziale ? String(now.getHours()).padStart(2, '0') : String(now.getHours());
@@ -115,7 +122,16 @@
     if (key === lastKey) return;
     lastKey = key;
     const o = C.orologio, d = C.data;
-    setFitted(clockEls, t, o.dimensione, o.peso, factor('22:50', o.dimensione, o.peso, o.larghezza));
+    // Larghezza dell'orologio: NON con textLength (Safari lo applica in modo diverso a riempimento,
+    // bordo e ombra, e ai lati comparivano pezzi di colore diverso). Le cifre restano alla loro
+    // larghezza naturale e si allarga tutto il gruppo insieme con una trasformazione.
+    clockEls.forEach((el) => {
+      el.textContent = t;
+      el.removeAttribute('textLength');
+      el.removeAttribute('lengthAdjust');
+    });
+    clkSx = factor('22:50', o.dimensione, o.peso, o.larghezza);
+    clockTransform();
     const ds = `${GG[now.getDay()]} ${now.getDate()} ${MM[now.getMonth()]}`;
     setFitted([dateEl], ds, d.dimensione, d.peso, factor('Mar 29 set', d.dimensione, d.peso, d.larghezza));
     if (C.dataDinamicaHome) {
