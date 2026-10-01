@@ -138,7 +138,10 @@ svg text { font-family: var(--sf); }
               top .55s cubic-bezier(.3, 1.28, .5, 1), border-radius .55s cubic-bezier(.3, 1.28, .5, 1);
 }
 #island.show { opacity: 1; }
-#island.expanded { top: 10px; width: 204.7px; height: 51.7px; border-radius: 25.9px; }
+/* Isola espansa: l'originale è larga 204.7 pt, ma iOS in quel momento nasconde campanella e tacche del
+   segnale. Una webapp non può nasconderle, quindi la teniamo più stretta (da 116.5 a 276.5 pt) per non
+   accavallarsi con le icone della barra di stato. */
+#island.expanded { top: 10px; width: 160px; height: 51.7px; border-radius: 25.9px; }
 #island .ic { position: absolute; opacity: 0; transition: opacity .22s; }
 #island.content .ic { opacity: 1; }
 #islLock { left: 16.9px; top: 15px; }
