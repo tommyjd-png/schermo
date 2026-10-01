@@ -129,6 +129,19 @@ svg text { font-family: var(--sf); }
 .hs { position: absolute; background: rgba(0, 0, 0, .32); opacity: 0; transition: opacity .3s; }
 .hs.down { opacity: 1; transition: none; }
 
+/* ---------- ricerca (Spotlight) ---------- */
+#spot { visibility: hidden; pointer-events: none; }
+#spotTop { position: absolute; left: 0; top: 0; width: 393px; height: 541.67px; opacity: 0; will-change: transform, opacity; }
+#spotTop img { position: absolute; left: 0; top: 0; width: 393px; height: 541.67px; }
+#spotKb { position: absolute; left: 0; top: 541.67px; width: 393px; height: 310.33px; will-change: transform; }
+.sname { font-size: 17px; font-weight: 600; fill: #fff; }
+.ssub { font-size: 15px; font-weight: 400; fill: #beb5b2; }
+#caret {
+  position: absolute; left: 48.67px; top: 501px; width: 2px; height: 22px;
+  border-radius: 1px; background: #fff; animation: caretBlink 1.05s infinite;
+}
+@keyframes caretBlink { 0%, 42% { opacity: 1; } 50%, 92% { opacity: 0; } 100% { opacity: 1; } }
+
 /* ---------- Dynamic Island ---------- */
 #island {
   position: absolute; left: 196.5px; top: 11.3px; width: 125px; height: 36.7px;
