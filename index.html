@@ -42,11 +42,11 @@
           <stop offset="1" stop-color="#ffd7c4" stop-opacity=".22"/>
         </linearGradient>
         <!-- Bordo dell'orologio ricavato dalla sagoma piena: niente linee interne dove i tratti si sovrappongono -->
-        <filter id="rimEdge" x="-5%" y="-10%" width="110%" height="120%">
+        <filter id="rimEdge" filterUnits="userSpaceOnUse" x="-50" y="-50" width="493" height="952">
           <feMorphology in="SourceAlpha" operator="erode" radius="1.1" result="inner"/>
           <feComposite in="SourceGraphic" in2="inner" operator="out"/>
         </filter>
-        <filter id="clkShadow" x="-10%" y="-10%" width="120%" height="140%">
+        <filter id="clkShadow" filterUnits="userSpaceOnUse" x="-50" y="-50" width="493" height="952">
           <feGaussianBlur stdDeviation="2.2"/>
         </filter>
       </defs>
