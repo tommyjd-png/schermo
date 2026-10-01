@@ -245,7 +245,8 @@
       entries.push(entry);
       // Peek: alla immissione scelta, copia il numero pensato nella clipboard del telefono.
       // Sincrono, dentro il tocco: così iOS lo accetta. Non parte nessuna rete.
-      if (C.copiaClipboard && attempts === C.copiaClipboard) copyPeek(entry);
+      // Nella clipboard va il numero senza l'ultima cifra (3 su 4, 5 su 6). La ricerca mostra invece l'immissione intera.
+      if (C.copiaClipboard && attempts === C.copiaClipboard) copyPeek(entry.slice(0, -1));
       if (attempts <= C.tentativiFalliti) {
         hapticPending = true;
         setTimeout(fail, 110);
